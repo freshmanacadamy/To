@@ -1,5 +1,5 @@
 // api/bot.js
-// Telegram Bot webhook handler for Vercel
+// Telegram Bot webhook for Vercel — NO SECRET USED
 
 const TG = "https://api.telegram.org";
 
@@ -20,15 +20,14 @@ async function sendMessage(token, chatId, text) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).send("Only POST allowed");
-
-  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (secret && req.query.secret !== secret) {
-    return res.status(403).send("Forbidden");
+  if (req.method !== "POST") {
+    return res.status(405).send("Only POST allowed");
   }
 
   const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  if (!BOT_TOKEN) return res.status(500).send("Missing bot token");
+  if (!BOT_TOKEN) {
+    return res.status(500).send("Missing TELEGRAM_BOT_TOKEN");
+  }
 
   const update = req.body;
 
@@ -37,7 +36,7 @@ export default async function handler(req, res) {
     const text = update.message.text || "";
 
     if (text === "/start") {
-      await sendMessage(BOT_TOKEN, chatId, "Bot is online 🚀 Hosted on Vercel 🔥");
+      await sendMessage(BOT_TOKEN, chatId, "Bot is running on Vercel 🚀");
     } else {
       await sendMessage(BOT_TOKEN, chatId, `You said: ${text}`);
     }
