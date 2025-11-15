@@ -1,23 +1,5 @@
 // api/bot.js
-// Telegram Bot webhook for Vercel — NO SECRET USED
-
-const TG = "https://api.telegram.org";
-
-function apiUrl(token, method) {
-  return `${TG}/bot${token}/${method}`;
-}
-
-// SEND MESSAGE
-async function sendMessage(token, chatId, text) {
-  await fetch(apiUrl(token, "sendMessage"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text
-    })
-  });
-}
+// Telegram bot webhook for Vercel (Node 22.x)
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -31,16 +13,30 @@ export default async function handler(req, res) {
 
   const update = req.body;
 
+  // handle Telegram messages
   if (update.message) {
     const chatId = update.message.chat.id;
     const text = update.message.text || "";
 
+    // basic commands
     if (text === "/start") {
-      await sendMessage(BOT_TOKEN, chatId, "Bot is running on Vercel 🚀");
+      await sendMessage(BOT_TOKEN, chatId, "Bot is working on Vercel 🚀");
     } else {
       await sendMessage(BOT_TOKEN, chatId, `You said: ${text}`);
     }
   }
 
   return res.status(200).send("OK");
+}
+
+// helper function to send Telegram message
+async function sendMessage(token, chatId, text) {
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text
+    })
+  });
 }
